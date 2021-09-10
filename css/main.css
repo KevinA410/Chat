@@ -1,6 +1,11 @@
 #main {
     height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
+}
+
+#main-adapted, #center-cont {
+    overflow-x: hidden;
+    min-height: calc(100vh - 92px);
 }
 
 #login-brand {

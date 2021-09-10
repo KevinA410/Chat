@@ -72,10 +72,10 @@ function layout_begin(){
                     aria-expanded="false">
                     <!-- Avatar -->'
                     .$_SESSION['user']->getUsername()
-                    .'<img src="../resources/profiles/'.$_SESSION['user']->getAvatar().'" width="30px" height="30px">
+                    .'&nbsp;<img src="../resources/profiles/'.$_SESSION['user']->getAvatar().'" width="30px" height="30px">
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="" class="dropdown-item">Profile</a></li>
+                    <li><a href="profile.php" class="dropdown-item">Profile</a></li>
                     <li>
                         <form action="../database/controller/logoutController.php" method="POST">
                             <input type="submit" name="logout" value="Logout" class="dropdown-item">
@@ -90,5 +90,13 @@ function layout_begin(){
 }
 
 function layout_end(){
+    echo '
+    <!-- Footer -->
+    <div class="container-fluid bg-light">
+        <p class="text-center mb-0 p-1">
+            <small>&copy;Chat 2021. Todos los derechos reservados.</small>
+        </p>
+    </div>
+    ';
     content_end();
 }

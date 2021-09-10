@@ -32,7 +32,7 @@ class DBController
         $insert->execute();
     }
 
-    public function deleteUser(string $id)
+    public static function deleteUser(string $id)
     {
         $db = self::connect();
         $query = 'DELETE FROM users WHERE id=:id';
@@ -42,15 +42,17 @@ class DBController
         $delete->execute();
     }
 
-    public function updateUser(User $user)
+    public static function updateUser(User $user)
     {
         $db = self::connect();
-        $query = 'UPDATE users SET username=:username, password=:password, avatar=:avatar WHERE id=:id';
+        $query = 'UPDATE users SET username=:username, email=:email, password=:password, avatar=:avatar WHERE id=:id';
 
         $update = $db->prepare($query);
         $update->bindValue('username', $user->getUsername());
+        $update->bindValue('email', $user->getEmail());
         $update->bindValue('password', $user->getPassword());
         $update->bindValue('avatar', $user->getAvatar());
+        $update->bindValue('id', $user->getId());
         $update->execute();
     }
 

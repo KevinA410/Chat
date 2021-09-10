@@ -1,0 +1,9 @@
+#main {
+    height: 100vh;
+    overflow: hidden;
+}
+
+#login-brand {
+    width: 80px;
+    height: 80px;
+}

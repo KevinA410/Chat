@@ -54,6 +54,14 @@ function layout_begin(){
     session_start();
 
     header_begin();
+
+    echo '
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Socket client script -->
+    <script src="../js/socket_connect.js"> </script>
+    ';
+
     header_end();
 
     content_begin();

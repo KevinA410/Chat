@@ -156,7 +156,7 @@ $(document).ready(function () {
             $("#right").removeAttr('hidden');
         }
     });
-
+    
 
     // Auxiliar functions
     function html_newConnection(id, username, avatar, address) {

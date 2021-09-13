@@ -21,8 +21,14 @@ function header_begin()
             integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/" crossorigin="anonymous">
         </script>
 
+        <!-- JQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
         <!-- Custom CSS -->
         <link rel="stylesheet" href="../css/main.css">
+
+        <!--General Scripts -->
+        <script src="../js/show_password_toggle.js" defer></script>
         ';
     }
     
@@ -56,8 +62,6 @@ function layout_begin(){
     header_begin();
 
     echo '
-    <!-- JQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <!-- Socket client script -->
     <script src="../js/socket_connect.js"> </script>
     ';
@@ -71,6 +75,7 @@ function layout_begin(){
     <!-- Navbar -->
     <nav class="navbar navbar-light bg-light shadow">
         <div class="container-fluid">
+            <div>
             <!-- Slice connected panel -->
             <button class="btn d-inline-block d-lg-none" id="btn_slide">
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#191919" class="bi bi-list"
@@ -85,6 +90,7 @@ function layout_begin(){
                     class="d-inline-block align-text-top">
                 Chat
             </a>
+            </div>
             <!-- User options -->
             <div class="btn-group">
                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown"

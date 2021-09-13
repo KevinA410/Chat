@@ -1,4 +1,5 @@
 <?php
+require_once '../model/User.php';
 require_once 'DBController.php';
 
 DBController::insertUser(User::factory(

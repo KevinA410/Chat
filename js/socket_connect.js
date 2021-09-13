@@ -1,38 +1,45 @@
 $(document).ready(function () {
     // Global variables
-    var wsURL = "ws://192.168.0.103:9000/server.php";
+    var wsURL = "ws://192.168.0.105:9000/server.php";
     let socket = new WebSocket(wsURL);
     var currentChat = null;
     const isLg = window.screen.width * window.devicePixelRatio >= 992 ? true :false;
+    var commands = [
+        'connection',           // [0]
+        'disconnection',        // [1]
+        'personal_message',     // [2]
+        'group_message',        // [3]
+        'verified_message',     // [4]
+        'get_new_connection',   // [5]
+        'get_all_connections',  // [6]
+    
+    ];
 
     setChat(false);
-
+    
     if(isLg){
         $("#right").removeAttr('hidden');
     }
 
     // Socket events
     socket.onopen = function (event) {
-        $("#dot").attr('class', 'connected-dot');
+        socket.send(JSON.stringify({
+            "command": commands[0],
+            "id": $("#userId").val()
+        }));
     }
 
     socket.onmessage = function (event) {
         var r = JSON.parse(event.data);
-
         switch (r.command) {
-            case 'connected_users':
-                $("#user_name").html(r.own_name);
-                $("#user_address").html(r.own_address);
-
-                $("#input_address").val(r.own_address);
-                $("#input_username").val(r.own_name);
-
+            case commands[6]:
+                $("#profile_address").val(r.address);
                 $("#connected").html(' ');
 
-                r.clients.forEach(client => {
+                r.users.forEach(client => {
                     var id = client.address.replaceAll('.', '_');
 
-                    $("#connected").append(html_newConnection(id, client.username, client.address));
+                    $("#connected").append(html_newConnection(id, client.username, client.avatar, client.address));
 
                     $("#" + id).on('click', function () {
                         setBadge(id, 0);
@@ -40,8 +47,10 @@ $(document).ready(function () {
                             setChat(true);
                         }
 
+                        $("#destination_avatar").attr('src', '../resources/profiles/'+client.avatar);
                         $("#destination_name").html(client.username);
                         $("#destination_address").html(client.address);
+
 
                         currentChat = client.address;
                         loadMessages(client.address);
@@ -52,10 +61,10 @@ $(document).ready(function () {
                     });
                 });
                 break;
-            case 'new_connection':
+            case commands[5]:
                 var id = r.address.replaceAll('.', '_');
 
-                $("#connected").append(html_newConnection(id, r.username, r.address));
+                $("#connected").append(html_newConnection(id, r.username, r.avatar, r.address));
 
                 $("#" + id).on('click', function () {
                     setBadge(id, 0);
@@ -63,6 +72,7 @@ $(document).ready(function () {
                         setChat(true);
                     }
 
+                    $("#destination_avatar").attr('src', '../resources/profiles/'+r.avatar);
                     $("#destination_name").html(r.username);
                     $("#destination_address").html(r.address);
 
@@ -74,7 +84,7 @@ $(document).ready(function () {
                     }
                 });
                 break;
-            case 'disconnected_user':
+            case commands[1]:
                 // Remove ip from connected list
                 var id = r.address.replaceAll('.', '_');
                 $("#" + id).remove();
@@ -84,7 +94,7 @@ $(document).ready(function () {
                     currentChat = null;
                 }
                 break;
-            case 'private_message':
+            case commands[2]:
                 saveMessage(r.message, r.hour, r.from);
 
                 if (currentChat == r.from) {
@@ -94,14 +104,9 @@ $(document).ready(function () {
                     setBadge(id, getBadge(id) + 1);
                 }
                 break;
-            case 'verfied_message':
+            case commands[4]:
                 saveMessage(r.message, r.hour, r.to, 'You');
                 loadMessages(r.to);
-                break;
-            case 'change_username_callback':
-                $("#input_username").val(r.new_name);
-                $("#confirm_message").html(r.message);
-                $("#confirm_message").removeAttr('hidden', true);                
                 break;
             default:
                 console.log("There's no function for this command");
@@ -109,10 +114,12 @@ $(document).ready(function () {
     }
 
     socket.onclose = function (event) {
-        $("#dot").attr('class', 'disconnected-dot');
+        $("#form_logout").submit();
     }
 
-    socket.onerror = function (event) {}
+    socket.onerror = function (event) {
+
+    }
 
     // General events
     $("#btn_send").on('click', function () {
@@ -127,7 +134,7 @@ $(document).ready(function () {
         $("#input_message ").val('');
 
         socket.send(JSON.stringify({
-            "command": "private_message",
+            "command": commands[2],
             "to": to,
             "message": message
         }));
@@ -152,14 +159,24 @@ $(document).ready(function () {
 
 
     // Auxiliar functions
-    function html_newConnection(id, username, address) {
+    function html_newConnection(id, username, avatar, address) {
         return `
             <div id="${id}" class="card py-3 shadow-sm px-3 mb-3">
-                <h5 class="h6 mb-1">${username} <span id="badge_${id}" class=""></span></h5>
-                <h5 class="h6 text-muted">
-                    <div id="dot" class="connected-dot"></div>
-                    ${address}
-                </h6>
+                <div class="row">
+                    <!-- Avatar -->
+                    <div class="col-1 col-lg-3">
+                        <img src="../resources/profiles/${avatar}" width="60px" height="60px" alt="">
+                    </div>
+                    <div class="col-9 d-flex align-items-center">
+                        <div class="ms-4 ms-lg-3">
+                            <h5 class="h6 mb-1">${username} <span id="badge_${id}" class=""></span></h5>
+                            <h5 class="h6 text-muted">
+                                <div id="dot" class="connected-dot"></div>
+                                ${address}
+                            </h5>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }

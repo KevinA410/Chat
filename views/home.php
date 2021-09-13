@@ -6,31 +6,23 @@
     <div class="row mt-3">
         <!-- Search pannel -->
         <div class="col-12 col-lg-3" id="left">
-            <!-- Search form -->
-            <!-- <div class="input-group flex-nowrap"> -->
-            <!-- <input type="search" class="form-control" placeholder="Search user" aria-describedby="addon-wrapping"> -->
-            <!-- <button class="btn btn-light"> -->
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#191919" class="bi bi-search" -->
-            <!-- viewBox="0 0 16 16"> -->
-            <!-- <path -->
-            <!-- d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" /> -->
-            <!-- </svg> -->
-            <!-- </button> -->
-            <!-- </div> -->
             <!-- Connected users -->
             <div class="">
-                <span class="d-block h5">You</span>
-                <!-- User information -->
-                <div class="card py-3 shadow px-3">
-                    <h4 class="h5"><strong id="user_name"></strong></h4>
-                    <h5 class="h6 text-muted">
-                        <div id="dot" class="connected-dot"></div>
-                        <span id="user_address"></span>
-                    </h5>
-                </div>
                 <!-- Title -->
-                <span class="d-block h5 mt-4">Connected</span>
-                <hr class="mt-0">
+                <span class="d-block h5">Connected</span>
+                <!-- Search form -->
+                <div class="input-group flex-nowrap">
+                    <input type="search" class="form-control" placeholder="Search user"
+                    aria-describedby="addon-wrapping">
+                    <button class="btn btn-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#191919"
+                        class="bi bi-search" viewBox="0 0 16 16">
+                        <path
+                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                    </svg>
+                </button>
+            </div>
+            <hr class="my-2">
                 <!-- Connected clients -->
                 <div id="connected" class="">
 
@@ -39,15 +31,24 @@
 
         </div>
         <!-- Conversation panel -->
-        <div class="col-12 col-lg-9" id="right"> 
+        <div class="col-12 col-lg-9" id="right" hidden>
             <div id="chat-flag">
                 <!-- Information card -->
                 <div class="card py-3 shadow px-3">
-                    <h4 class="h5"><strong id="destination_name"></strong></h4>
-                    <h5 class="h6 text-muted">
-                        <div id="dot" class="connected-dot"></div>
-                        <span id="destination_address"></span>
-                    </h5>
+                    <div class="row">
+                        <!-- Avatar -->
+                        <div class="col-1">
+                            <img id="destination_avatar" src="" width="60px" height="60px" alt="">
+                        </div>
+                        <div class="col-9 d-flex align-items-center">
+                            <div class="ms-4 ms-lg-2">
+                                <h4 class="h5"><strong id="destination_name"></strong></h4>
+                                <h5 class="h6 text-muted">
+                                    <span id="destination_address"></span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- messages container -->

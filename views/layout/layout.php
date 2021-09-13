@@ -66,6 +66,8 @@ function layout_begin(){
 
     content_begin();
     echo '
+    <!-- User id -->
+    <input type="text" value="'.$_SESSION['user']->getId().'" id="userId" hidden>
     <!-- Navbar -->
     <nav class="navbar navbar-light bg-light shadow">
         <div class="container-fluid">
@@ -85,7 +87,7 @@ function layout_begin(){
                 <ul class="dropdown-menu">
                     <li><a href="profile.php" class="dropdown-item">Profile</a></li>
                     <li>
-                        <form action="../database/controller/logoutController.php" method="POST">
+                        <form id="form_logout" action="../database/controller/logoutController.php" method="POST">
                             <input type="submit" name="logout" value="Logout" class="dropdown-item">
                         </form>
                     </li>

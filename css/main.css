@@ -43,8 +43,8 @@
 }
 
 #messages {
-    min-height: calc(100vh - 225px);
-    max-height: calc(100vh - 225px);
+    min-height: calc(100vh - 250px);
+    max-height: calc(100vh - 250px);
 }
 
 #left,

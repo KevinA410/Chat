@@ -1,55 +1,106 @@
 <?php
-// Generate a username which has not been assigned
-function genereteUsername(){
-	global $usernames;
+function newConnection(Socket $client, string $id) {
+	global $users, $commands;
 
-	$aux = 'User';
-	$name = '';
-	$flag = true;
+	socket_getpeername($client, $address); // Get ip address
+	$user = DBController::selectUser('id', $id);
 
-	while($flag){
-		$flag = false;
-		$name = $aux . rand(0, 10000);
-		
-		foreach($usernames as $username){
-			if($username == $name){
-				$flag = true;
-				break;
-			}
-		}
+	// New user recieves all connected ips
+	$callback = socket_encodeResponse(array(
+		'command' => $commands[6],
+		'address' => $address,
+		'users' => getClientsInfo($address)
+	));
+
+	// Already connected users recieve only the new connection's ip
+	$notification = socket_encodeResponse(array(
+		'command' => $commands[5],
+		'username' => $user->getUsername(),
+		'avatar' => $user->getAvatar(),
+		'address' => $address
+	));
+
+	socket_write($client, $callback, strlen($callback)); // Send response
+	socket_sendForAll($notification); // Send response for all connected users
+	$users[$address] = $user;
+}
+
+function disconnection(Socket $client) {
+	global $sockets, $commands;
+
+	socket_getpeername($client, $address); // Get ip address
+	socket_remove($client, $sockets); // Remove client for connected clients array
+
+	$response = socket_encodeResponse(array(
+		'command' => $commands[1],
+		'address' => $address
+	));
+
+	socket_sendForAll($response); // Notify all users about disconnected client
+}
+
+function privateMessage(Socket $client, string $toIP, string $message) {
+	global $sockets, $commands;
+	socket_getpeername($client, $fromIP);
+
+	$dt = new DateTime();
+	$hour = $dt->format('H') . ':' . $dt->format('i');
+
+	if ($sockets[$fromIP] && $sockets[$toIP]) { // If the destionation socket exists
+		$callback = socket_encodeResponse(array(
+			'command' => $commands[4],
+			'to' => $toIP,
+			'message' => $message,
+			'hour' => $hour
+		));
+
+		$response = socket_encodeResponse(array(
+			'command' => $commands[2],
+			'from' => $fromIP,
+			'message' => $message,
+			'hour' => $hour
+		));
+
+		socket_write($client, $callback, strlen($callback)); // Send message
+		socket_write($sockets[$toIP], $response, strlen($response)); // Send message
 	}
-
-	return $name;
 }
 
 // Delete socket in specified array
-function socket_remove($socket, &$socket_array){
+function socket_remove(Socket $socket, array &$socket_array) {
 	$index = array_search($socket, $socket_array);
 	unset($socket_array[$index]);
-	// $socket_array = array_values($socket_array);
 }
 
 // Send message to all clients
-function socket_sendForAll($message){
+function socket_sendForAll(string $message, ?string $exceptIP = NULL) {
 	global $sockets;
 
-	foreach($sockets as $socket){
-		@socket_write($socket, $message, strlen($message));
+	foreach ($sockets as $address => $socket) {
+		if(!$address <=> $exceptIP)
+			@socket_write($socket, $message, strlen($message));
 	}
 
 	return true;
 }
 
 // Get all ip addresses for connected clients
-function getClientsInfo(){
-	global $sockets, $usernames;
-
+function getClientsInfo(?string $except = NULL): array {
+	global $sockets, $users;
+	$keys = array_keys($sockets);
 	$clients_info = array();
 
-	foreach($sockets as $address => $value){
+	if($except && in_array($except, $keys)){
+		$index = array_search($except, $keys);
+		unset($keys[$index]);
+	}
+
+	foreach ($keys as $key) {
+		$user = $users[$key];
 		array_push($clients_info, array(
-			'username' => $usernames[$address],
-			'address' => $address
+			'username' => $user->getUsername(),
+			'avatar' => $user->getAvatar(),
+			'address' => $key
 		));
 	}
 
@@ -57,13 +108,11 @@ function getClientsInfo(){
 }
 
 // Encode the response to send
-function socket_encodeResponse($response){
+function socket_encodeResponse(string|array $response): ?string {
 	return socket_mask(json_encode($response), true);
 }
 
 // Decode the recieve response
-function socket_decodeResponse($response){
+function socket_decodeResponse(string $response): ?array {
 	return json_decode(socket_unmask($response), true);
 }
-
-?>

@@ -6,9 +6,9 @@
         <form action="../database/controller/updateUserController.php" method="POST" class="card shadow p-4 col-8">
             <div class="row">
                 <!-- Avatar section -->
-                <div class="col-5 d-flex justify-content-center align-items-center">
+                <div class="col-5 d-flex justify-content-center align-items-start">
                     <div class="text-center">
-                        <img src="../resources/profiles/default.png" width="80%">
+                        <img src="../resources/profiles/<?php echo $_SESSION['user']->getAvatar() ?>" width="80%">
                         <div class="w-100"></div>
                         <label class="mt-3 label-input h6 d-block text-center"><b>Cambiar foto</b></label>
                         <input id="fichero" name="avatar" type="file" hidden />
@@ -19,12 +19,18 @@
                 </div>
                 <!-- Data section -->
                 <div class="col-7">
-                    <input type="text" name="id" value="<?php echo $_SESSION['user']->getId() ?>" hidden>
+                    <!-- Username -->
                     <div class="form-group mb-3">
                         <label for="username" class="form-label text-muted">Username</label>
                         <input type="text" class="form-control" name="username" aria-describedby="usernamelHelp" value="<?php echo $_SESSION['user']->getUsername() ?>">
                         <div id="usernameHelp" class="form-text" hidden>Invalid username</div>
                     </div>
+                    <!-- IP address -->
+                    <div class="form-group mb-3">
+                        <label for="profile_address" class="form-label text-muted">IP Address</label>
+                        <input type="text" class="form-control" id="profile_address" value="" disabled>
+                    </div>
+
                     <!-- Email -->
                     <div class="form-group mb-3">
                         <label for="email" class="form-label text-muted">Email</label>

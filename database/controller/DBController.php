@@ -1,6 +1,4 @@
 <?php
-require_once '../model/User.php';
-
 class DBController
 {
     private static $connection = NULL;
@@ -76,7 +74,7 @@ class DBController
             $user['email'],
             $user['password'],
             $user['avatar'],
-            $user['registration_date']
+            $user['register_date']
         );
     }
 }

@@ -21,7 +21,7 @@ function newConnection(Socket $client, string $id) {
 	));
 
 	socket_write($client, $callback, strlen($callback)); // Send response
-	socket_sendForAll($notification); // Send response for all connected users
+	socket_sendForAll($notification, $address); // Send response for all connected users
 	$users[$address] = $user;
 }
 
@@ -36,7 +36,7 @@ function disconnection(Socket $client) {
 		'address' => $address
 	));
 
-	socket_sendForAll($response); // Notify all users about disconnected client
+	socket_sendForAll($response, $address); // Notify all users about disconnected client
 }
 
 function privateMessage(Socket $client, string $toIP, string $message) {
@@ -77,7 +77,7 @@ function socket_sendForAll(string $message, ?string $exceptIP = NULL) {
 	global $sockets;
 
 	foreach ($sockets as $address => $socket) {
-		if(!$address <=> $exceptIP)
+		if($address <=> $exceptIP)
 			@socket_write($socket, $message, strlen($message));
 	}
 

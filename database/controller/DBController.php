@@ -74,7 +74,7 @@ class DBController
             $user['email'],
             $user['password'],
             $user['avatar'],
-            $user['register_date']
+            $user['registration_date']
         );
     }
 }

@@ -2,7 +2,7 @@
 include_once '../database/model/User.php';
 include_once '../database/controller/DBController.php';
 
-$server_address = '192.168.0.105';
+$server_address = '192.168.0.103';
 $server_port = '9000';
 
 $sockets = array(); // IP => Socket
@@ -39,6 +39,10 @@ while (true) { // Keep run
         socket_handshaking($header, $new_socket, $server_address, $server_port); // Link to master
         socket_getpeername($new_socket, $new_address); // Get ip of new socket
         
+        if(isset($sockets[$new_address])) {
+            disconnection($new_socket);
+        }
+
         $sockets[$new_address] = $new_socket;
         socket_remove($master, $copy); // Remove master from $copy_clients
     }

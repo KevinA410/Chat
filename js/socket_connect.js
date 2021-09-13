@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // Global variables
-    var wsURL = "ws://192.168.0.105:9000/server.php";
+    var wsURL = "ws://192.168.0.103:9000/server.php";
     let socket = new WebSocket(wsURL);
     var currentChat = null;
     const isLg = window.screen.width * window.devicePixelRatio >= 992 ? true :false;
@@ -221,9 +221,10 @@ $(document).ready(function () {
 
         conv.forEach(item => {
             var user = item.from == 'You' ? item.from : $("#destination_name").html();
+            var style = user == 'You' ? 'own-message' : 'others-message';
 
             raw += `
-                <div class="card my-2 p-2">
+                <div class="card my-2 p-2 ${style}">
                     <p class="card-text mb-0 pb-0">
                         <span class="text-muted">${user}: </span>${item.message}
                     </p>

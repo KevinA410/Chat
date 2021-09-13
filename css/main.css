@@ -51,3 +51,16 @@
 #messages {
     overflow-y: auto;
 }
+
+.own-message,
+.others-message {
+    color: #fff;
+}
+
+.own-message {
+    background-color: #4BD2F9;
+}
+
+.others-message {
+    background-color: #7BE4AC;
+}

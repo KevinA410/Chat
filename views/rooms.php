@@ -63,16 +63,19 @@
         </div>
 
         <!-- Conversation panel -->
-        <div class="col-12 col-lg-9 d-none" id="right" hidden>
+        <div class="col-12 col-lg-9" id="right" hidden>
             <div id="chat-flag">
                 <!-- Information card -->
                 <div class="card py-3 shadow px-3">
                     <div class="row">
-                        <!-- Avatar -->
-                        <div class="col-1">
-                            <img id="destination_avatar" src="" width="60px" height="60px" alt="">
-                        </div>
                         <div class="col-9 d-flex align-items-center">
+                            <button class="btn" id="back_rooms">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+                                </svg>
+                            </button>
                             <div class="ms-4 ms-lg-2">
                                 <h4 class="h5"><strong id="destination_name"></strong></h4>
                                 <h5 class="h6 text-muted">

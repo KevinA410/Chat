@@ -167,7 +167,9 @@ function loginRoom(Socket $client, string $code, string $password) {
 
 	$response = socket_encodeResponse(array(
 		'command' => $commands[14],
-		'success' => $success
+		'success' => $success,
+		'name' => $rooms[$code]['name'],
+		'code' => $code
 	));
 
 	socket_write($client, $response, strlen($response));

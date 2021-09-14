@@ -4,6 +4,7 @@ $(document).ready(function () {
     let socket = new WebSocket(wsURL);
     var currentChat = null;
     const isLg = window.screen.width * window.devicePixelRatio >= 992 ? true : false;
+    var mode = $("#mode").val();
     var commands = [
         'connection', // [0]
         'disconnection', // [1]
@@ -22,16 +23,16 @@ $(document).ready(function () {
         'login_room',   // [14]
     ];
 
-    setChat(false);
-
-    if (isLg) {
-        $("#right").removeAttr('hidden');
+    if(mode == 'private'){
+        setChat(false);
     }
+
+    // if (isLg) {
+    //     $("#right").removeAttr('hidden');
+    // }
 
     // Socket events
     socket.onopen = function (event) {
-        var mode = $("#mode").val();
-
         if (mode == 'private') {
             // In private messages interface
             socket.send(JSON.stringify({
@@ -240,15 +241,31 @@ $(document).ready(function () {
                 
                     $("#" + room.code).on('click', function () {
                         var password = prompt('Password');
+    
+                        if(password == null){
+                            return;
+                        }
+    
+                        socket.send(JSON.stringify({
+                            "command": commands[14],
+                            "password": password,
+                            "code": room.code
+                        }));
                     });
                 });
                 break;
             case commands[14]:
-                if(r.success){
-                    alert('Correct');
-                }else{
-                    alert('incorrect');
+                if(!r.success){
+                    alert('Incorrect Password');
+                    return;
                 }
+
+                var roomClass = 'd-flex justify-content-center align-items-start row col-12 col-lg-9';
+                $("#room-content").attr('class', roomClass + ' d-none');
+                $("#right").removeAttr('hidden', true);
+
+                $("#destination_name").html(r.name);
+                $("#destination_address").html('#' + r.code);
             break;
             default:
                 console.log("There's no function for this command");
@@ -337,6 +354,14 @@ $(document).ready(function () {
 
         $("#room_name").val('');
         $("#room_password").val('');
+    });
+
+    $("#back_rooms").on('click', function () {
+        var roomClass = 'd-flex justify-content-center align-items-start row col-12 col-lg-9';
+        $("#room-content").attr('class', roomClass);
+        $("#right").attr('hidden', true);
+
+        currentChat = null;
     });
 
     // Auxiliar functions

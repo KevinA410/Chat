@@ -3,31 +3,52 @@ $(document).ready(function () {
     var wsURL = "ws://192.168.0.103:9000/server.php";
     let socket = new WebSocket(wsURL);
     var currentChat = null;
-    const isLg = window.screen.width * window.devicePixelRatio >= 992 ? true :false;
+    const isLg = window.screen.width * window.devicePixelRatio >= 992 ? true : false;
     var commands = [
-        'connection',           // [0]
-        'disconnection',        // [1]
-        'personal_message',     // [2]
-        'group_message',        // [3]
-        'verified_message',     // [4]
-        'get_new_connection',   // [5]
-        'get_all_connections',  // [6]
-        'request_users',        // [7]
-
+        'connection', // [0]
+        'disconnection', // [1]
+        'personal_message', // [2]
+        'group_message', // [3]
+        'verified_message', // [4]
+        'get_new_connection', // [5]
+        'get_all_connections', // [6]
+        'request_users', // [7]
+        'create_room', // [8]
+        'edit_room', // [9]
+        'delete_room', // [10]
+        'get_created_rooms', // [11]
+        'get_all_rooms', // [12]
+        'request_rooms', // [13]
+        'login_room',   // [14]
     ];
 
     setChat(false);
-    
-    if(isLg){
+
+    if (isLg) {
         $("#right").removeAttr('hidden');
     }
 
     // Socket events
     socket.onopen = function (event) {
-        socket.send(JSON.stringify({
-            "command": commands[0],
-            "id": $("#userId").val()
-        }));
+        var mode = $("#mode").val();
+
+        if (mode == 'private') {
+            // In private messages interface
+            socket.send(JSON.stringify({
+                "command": commands[0],
+                "id": $("#userId").val()
+            }));
+        } else {
+            // In chat rooms interface
+            socket.send(JSON.stringify({
+                "command": commands[12],
+            }));
+
+            socket.send(JSON.stringify({
+                "command": commands[11],
+            }));
+        }
+
     }
 
     socket.onmessage = function (event) {
@@ -48,15 +69,15 @@ $(document).ready(function () {
                             setChat(true);
                         }
 
-                        $("#destination_avatar").attr('src', '../resources/profiles/'+client.avatar);
+                        $("#destination_avatar").attr('src', '../resources/profiles/' + client.avatar);
                         $("#destination_name").html(client.username);
                         $("#destination_address").html(client.address);
 
 
                         currentChat = client.address;
                         loadMessages(client.address);
-                        
-                        if(!isLg){
+
+                        if (!isLg) {
                             $("#btn_slide").click();
                         }
                     });
@@ -73,14 +94,14 @@ $(document).ready(function () {
                         setChat(true);
                     }
 
-                    $("#destination_avatar").attr('src', '../resources/profiles/'+r.avatar);
+                    $("#destination_avatar").attr('src', '../resources/profiles/' + r.avatar);
                     $("#destination_name").html(r.username);
                     $("#destination_address").html(r.address);
 
                     currentChat = r.address;
                     loadMessages(r.address);
 
-                    if(!isLg){
+                    if (!isLg) {
                         $("#btn_slide").click();
                     }
                 });
@@ -117,25 +138,118 @@ $(document).ready(function () {
 
                     $("#results").append(html_newConnection(id, client.username, client.avatar, client.address));
 
-                    $("#" + id).on('click', function () {   
+                    $("#" + id).on('click', function () {
                         if (!currentChat) {
                             setChat(true);
                         }
 
-                        $("#destination_avatar").attr('src', '../resources/profiles/'+client.avatar);
+                        $("#destination_avatar").attr('src', '../resources/profiles/' + client.avatar);
                         $("#destination_name").html(client.username);
                         $("#destination_address").html(client.address);
 
 
                         currentChat = client.address;
                         loadMessages(client.address);
-                        
-                        if(!isLg){
+
+                        if (!isLg) {
                             $("#btn_slide").click();
                         }
                     });
                 });
                 break;
+            case commands[8]:
+                if (r.isOwner) {
+                    $('#my-rooms').append(`
+                    <div class="card p-1 ${r.code}" id="">
+                        <div class="row row-cols-3">
+                            <div class="col">
+                                <p><strong>Name: </strong><span>${r.name}</span></p>
+                            </div>
+                            <div class="col text-center">
+                            <p><strong>Code: </strong><span>#${r.code}</span></p>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex justify-content-end">
+                                    <button id="delete-${r.code}" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `);
+
+                    $('#delete-' + r.code).on('click', function () {
+                        socket.send(JSON.stringify({
+                            "command": commands[10],
+                            "code": r.code
+                        }));
+                    });
+                }
+
+                $('#rooms').append(html_getAllRooms(r.code, r.name, r.owner));
+
+                $("#" + r.code).on('click', function () {
+                    var password = prompt('Password');
+
+                    if(password == null){
+                        return;
+                    }
+
+                    socket.send(JSON.stringify({
+                        "command": commands[14],
+                        "password": password,
+                        "code": r.code
+                    }));
+                });
+
+                break;
+            case commands[10]:
+                $('.' + r.code).remove();
+                break;
+            case commands[11]:
+                r.rooms.forEach(room => {
+                    $('#my-rooms').append(`
+                    <div class="card p-1 ${room.code}" id="">
+                        <div class="row row-cols-3">
+                            <div class="col">
+                                <p><strong>Name: </strong><span>${room.name}</span></p>
+                            </div>
+                            <div class="col text-center">
+                            <p><strong>Code: </strong><span>#${room.code}</span></p>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex justify-content-end">
+                                    <button id="delete-${room.code}" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `);
+
+                    $('#delete-' + room.code).on('click', function () {
+                        socket.send(JSON.stringify({
+                            "command": commands[10],
+                            "code": room.code
+                        }));
+                    });
+
+                });
+                break;
+            case commands[12]:
+                r.rooms.forEach(room => {
+                    $('#rooms').append(html_getAllRooms(room.code, room.name, room.owner));
+                
+                    $("#" + room.code).on('click', function () {
+                        var password = prompt('Password');
+                    });
+                });
+                break;
+            case commands[14]:
+                if(r.success){
+                    alert('Correct');
+                }else{
+                    alert('incorrect');
+                }
+            break;
             default:
                 console.log("There's no function for this command");
         }
@@ -154,7 +268,7 @@ $(document).ready(function () {
         var to = $("#destination_address").html();
         var message = $("#input_message").val();
 
-        if(message == ''){
+        if (message == '') {
             alert("You can't send empty messages");
             return;
         }
@@ -184,7 +298,7 @@ $(document).ready(function () {
             $("#right").removeAttr('hidden');
         }
     });
-    
+
     $("#searchBar").keyup(function () {
         socket.send(JSON.stringify({
             "command": commands[7],
@@ -202,7 +316,27 @@ $(document).ready(function () {
         setTimeout(() => {
             $("#results").attr('hidden', true);
             $("#results").html('');
-          }, 300);
+        }, 300);
+    });
+
+    // Room events
+    $("#create_room").on('click', function () {
+        var roomName = $("#room_name").val();
+        var roomPassword = $("#room_password").val();
+
+        if (!roomName) {
+            alert('Room name cannot be empty');
+            return;
+        }
+
+        socket.send(JSON.stringify({
+            "command": commands[8],
+            "name": roomName,
+            "password": roomPassword,
+        }));
+
+        $("#room_name").val('');
+        $("#room_password").val('');
     });
 
     // Auxiliar functions
@@ -226,6 +360,22 @@ $(document).ready(function () {
                 </div>
             </div>
         `;
+    }
+
+    function html_getAllRooms(code, name, owner) {
+        var html = `
+            <div id="${code}" class="${code} card py-3 shadow-sm px-3 mb-3">
+                <div class="ms-4 ms-lg-3">
+                    <h5 class="h6 mb-1">${name}</h5>
+                    <h5 class="h6 mb-1">${owner}</h5>
+                    <h5 class="h6 text-muted">
+                        #${code}
+                    </h5>
+                </div>
+            </div>
+        `;
+
+        return html;
     }
 
     function setBadge(id, number) {

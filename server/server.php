@@ -7,6 +7,7 @@ $server_port = '9000';
 
 $sockets = array(); // IP => Socket
 $users = array(); // IP => User
+$rooms = array(); // 
 $commands = [
     'connection',           // [0]
     'disconnection',        // [1]
@@ -15,7 +16,14 @@ $commands = [
     'verified_message',     // [4]
     'get_new_connection',   // [5]
     'get_all_connections',  // [6]
-    'request_users',         // [7]
+    'request_users',        // [7]
+    'create_room',          // [8]
+    'edit_room',            // [9]
+    'delete_room',          // [10]
+    'get_created_rooms',    // [11]
+    'get_all_rooms',        // [12]
+    'request_rooms',        // [13]
+    'login_room',           // [14]
 
 ];
 
@@ -60,6 +68,16 @@ while (true) { // Keep run
                     $commands[2] => privateMessage($client, $request['to'], $request['message']),
                     // Send requested users
                     $commands[7] => requestUsers($client, $request['attr']),
+                    // Create room
+                    $commands[8] => createRoom($client, $request['name'], $request['password']),
+                    // Delete room
+                    $commands[10] => deleteRoom($client, $request['code']),
+                    // Get all rooms
+                    $commands[12] => getAllRooms($client),
+                    // Get created rooms
+                    $commands[11] => getCreatedRooms($client),
+                    // Login in room
+                    $commands[14] => loginRoom($client, $request['code'], $request['password']),
 
                 };
             }

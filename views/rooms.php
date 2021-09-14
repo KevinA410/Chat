@@ -1,7 +1,7 @@
 <?php include_once 'layout/layout.php' ?>
 
 <?php layout_begin() ?>
-<input type="hidden" value="private" id="mode">
+<input type="hidden" value="room" id="mode">
 <div id="main-adapted" class="px-2">
     <!--  -->
     <div class="row mt-3">
@@ -10,10 +10,10 @@
             <!-- Connected users -->
             <div class="">
                 <!-- Title -->
-                <span class="d-block h5">Connected</span>
+                <span class="d-block h5">Chat Rooms</span>
                 <!-- Search form -->
                 <div class="input-group flex-nowrap">
-                    <input id="searchBar" type="search" class="form-control" placeholder="Search user"
+                    <input id="searchBar_rooms" type="search" class="form-control" placeholder="Search room"
                         aria-describedby="addon-wrapping">
                     <button class="btn btn-light">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#191919"
@@ -23,19 +23,47 @@
                         </svg>
                     </button>
                 </div>
-                <div class="bg-light shadow" id="results">
-                    
+                <div class="bg-light shadow" id="results_rooms">
+
                 </div>
                 <hr class="my-2">
                 <!-- Connected clients -->
-                <div id="connected" class="">
+                <div id="rooms" class="">
 
                 </div>
             </div>
-
         </div>
+
+        <!-- Create room form -->
+        <div id="room-content" class="d-flex justify-content-center align-items-start row col-12 col-lg-9">
+            <div class="card shadow p-4 col-10 col-lg-11 my-2 my-lg-0">
+                <h2 class="h6 card-title text-muted">Create Chat Room</h2>
+                <hr class="my-1">
+                <!--  -->
+                <div class="input-group flex-nowrap">
+                    <input id="room_name" type="text" class="form-control me-1" placeholder="Name"
+                        aria-describedby="addon-wrapping">
+
+                    <input id="room_password" type="password" class="form-control me-1" placeholder="Password"
+                        aria-describedby="addon-wrapping">
+
+                    <button id="create_room" class="btn btn-primary">
+                        Create
+                    </button>
+                </div>
+                <!--  -->
+
+
+                <h2 class="h6 card-title text-muted mt-5">My Chat Room</h2>
+                <hr class="mt-1">
+                <div id="my-rooms">
+
+                </div>
+            </div>
+        </div>
+
         <!-- Conversation panel -->
-        <div class="col-12 col-lg-9" id="right" hidden>
+        <div class="col-12 col-lg-9 d-none" id="right" hidden>
             <div id="chat-flag">
                 <!-- Information card -->
                 <div class="card py-3 shadow px-3">

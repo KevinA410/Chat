@@ -36,6 +36,7 @@
 }
 
 #left,
+#room-content,
 #right {
     overflow-x: hidden;
     min-height: calc(100vh - 108px);

@@ -97,6 +97,122 @@ function requestUsers(Socket $client, string $attr) {
 	socket_write($client, $response, strlen($response));
 }
 
+function createRoom(Socket $client, string $name, string $password){
+	global $rooms, $commands, $users;
+
+	socket_getpeername($client, $address);
+
+	$code = uniqid();
+
+	$rooms[$code] = array(
+		'name' => $name,
+		'password' => password_hash($password, PASSWORD_DEFAULT),
+		'owner' => $address
+	);
+
+	$callback = socket_encodeResponse(array(
+		'command' => $commands[8],
+		'code' => $code,
+		'name' => $name,
+		'owner' => $users[$address]->getUsername(),
+		'isOwner' => true
+	));
+
+	$notification = socket_encodeResponse(array(
+		'command' => $commands[8],
+		'code' => $code,
+		'name' => $name,
+		'owner' => $users[$address]->getUsername(),
+		'isOwner' => false
+	));
+
+	socket_write($client, $callback, strlen($callback));
+	socket_sendForAll($notification, $address);
+}
+
+function getAllRooms(Socket $client){
+	global $commands, $rooms, $users;
+
+	$results = array();
+
+	foreach($rooms as $code => $room) {
+		array_push($results, array(
+			"code" => $code,
+			"name" => $room['name'],
+			"owner" => $users[$room['owner']]->getUsername()
+		));
+	}
+
+	$response = socket_encodeResponse(array(
+		"command" => $commands[12],
+		"rooms" => $results
+	));
+
+	socket_write($client, $response, strlen($response));
+}
+
+function loginRoom(Socket $client, string $code, string $password) {
+	global $rooms, $commands;
+	$success = false;
+	
+	if(!isset($rooms[$code]['members'])){
+		$rooms[$code]['members'] = array();
+	}
+
+	if(password_verify($password, $rooms[$code]['password'])) {
+		socket_getpeername($client, $address);
+		array_push($rooms[$code]['members'], $address);
+		$success = true;
+	}
+
+	$response = socket_encodeResponse(array(
+		'command' => $commands[14],
+		'success' => $success
+	));
+
+	socket_write($client, $response, strlen($response));
+}
+
+function getCreatedRooms(Socket $client) {
+	global $rooms, $commands;
+
+	socket_getpeername($client, $address);
+
+	$results = array();
+
+	foreach($rooms as $code => $room) {
+		$owner = $room['owner'];
+
+		if($owner == $address){
+			array_push($results, array(
+				"code" => $code,
+				"name" => $room['name'],
+			));
+		}
+	}
+
+	$response = socket_encodeResponse(array(
+		'command' => $commands[11],
+		'rooms' => $results
+	));
+
+	socket_write($client, $response, strlen($response));
+}
+
+function deleteRoom(Socket $client, string $code) {
+	global $rooms, $commands;
+
+	unset($rooms[$code]);
+
+	$response = socket_encodeResponse(array(
+		"command" => $commands[10],
+		"code" => $code
+	));
+
+	// socket_write($client, $response, strlen($response));
+	socket_sendForAll($response);
+}
+
 // Delete socket in specified array
 function socket_remove(Socket $socket, array &$socket_array) {
 	$index = array_search($socket, $socket_array);

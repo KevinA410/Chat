@@ -66,6 +66,8 @@ while (true) { // Keep run
                     $commands[0] => newConnection($client, $request['id']),
                     // Send private message
                     $commands[2] => privateMessage($client, $request['to'], $request['message']),
+                    // Send grupal message
+                    $commands[3] => grupalMessage($client, $request['room'], $request['message']),
                     // Send requested users
                     $commands[7] => requestUsers($client, $request['attr']),
                     // Create room

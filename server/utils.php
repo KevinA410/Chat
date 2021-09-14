@@ -1,5 +1,6 @@
 <?php
-function newConnection(Socket $client, string $id) {
+function newConnection(Socket $client, string $id)
+{
 	global $users, $commands;
 
 	socket_getpeername($client, $address); // Get ip address
@@ -25,7 +26,8 @@ function newConnection(Socket $client, string $id) {
 	$users[$address] = $user;
 }
 
-function disconnection(Socket $client) {
+function disconnection(Socket $client)
+{
 	global $sockets, $commands;
 
 	socket_getpeername($client, $address); // Get ip address
@@ -39,7 +41,8 @@ function disconnection(Socket $client) {
 	socket_sendForAll($response, $address); // Notify all users about disconnected client
 }
 
-function privateMessage(Socket $client, string $toIP, string $message) {
+function privateMessage(Socket $client, string $toIP, string $message)
+{
 	global $sockets, $commands;
 	socket_getpeername($client, $fromIP);
 
@@ -66,7 +69,41 @@ function privateMessage(Socket $client, string $toIP, string $message) {
 	}
 }
 
-function requestUsers(Socket $client, string $attr) {
+function grupalMessage(Socket $client, string $code, string $message)
+{
+	global $rooms, $sockets, $commands, $users;
+
+	socket_getpeername($client, $fromIP);
+
+	$dt = new DateTime();
+	$hour = $dt->format('H') . ':' . $dt->format('i');
+
+	$callback = socket_encodeResponse(array(
+		'command' => $commands[3],
+		'room' => $code,
+		'message' => $message,
+		'hour' => $hour
+	));
+
+	$notification = socket_encodeResponse(array(
+		'command' => $commands[3],
+		'room' => $code,
+		'from' => $users[$fromIP]->getUsername(),
+		'message' => $message,
+		'hour' => $hour
+	));
+
+	socket_write($client, $callback, strlen($callback)); // Send message
+
+	foreach ($rooms[$code]['members'] as $address) {
+		if ($fromIP <=> $address) {
+			socket_write($sockets[$address], $notification, strlen($notification));
+		}
+	}
+}
+
+function requestUsers(Socket $client, string $attr)
+{
 	socket_getpeername($client, $client_address);
 
 	global $users, $sockets, $commands;
@@ -75,11 +112,11 @@ function requestUsers(Socket $client, string $attr) {
 
 	$index = array_search($client_address, $keys);
 	unset($keys[$index]);
-	
-	if(!empty($attr)){
-		foreach($keys as $address) {
+
+	if (!empty($attr)) {
+		foreach ($keys as $address) {
 			$user = $users[$address];
-			if(str_starts_with($address, $attr) || str_starts_with($user->getUsername(), $attr)) {
+			if (str_starts_with($address, $attr) || str_starts_with($user->getUsername(), $attr)) {
 				array_push($results, array(
 					'username' => $user->getUsername(),
 					'avatar' => $user->getAvatar(),
@@ -97,7 +134,8 @@ function requestUsers(Socket $client, string $attr) {
 	socket_write($client, $response, strlen($response));
 }
 
-function createRoom(Socket $client, string $name, string $password){
+function createRoom(Socket $client, string $name, string $password)
+{
 	global $rooms, $commands, $users;
 
 	socket_getpeername($client, $address);
@@ -130,12 +168,13 @@ function createRoom(Socket $client, string $name, string $password){
 	socket_sendForAll($notification, $address);
 }
 
-function getAllRooms(Socket $client){
+function getAllRooms(Socket $client)
+{
 	global $commands, $rooms, $users;
 
 	$results = array();
 
-	foreach($rooms as $code => $room) {
+	foreach ($rooms as $code => $room) {
 		array_push($results, array(
 			"code" => $code,
 			"name" => $room['name'],
@@ -151,15 +190,16 @@ function getAllRooms(Socket $client){
 	socket_write($client, $response, strlen($response));
 }
 
-function loginRoom(Socket $client, string $code, string $password) {
+function loginRoom(Socket $client, string $code, string $password)
+{
 	global $rooms, $commands;
 	$success = false;
-	
-	if(!isset($rooms[$code]['members'])){
+
+	if (!isset($rooms[$code]['members'])) {
 		$rooms[$code]['members'] = array();
 	}
 
-	if(password_verify($password, $rooms[$code]['password'])) {
+	if (password_verify($password, $rooms[$code]['password'])) {
 		socket_getpeername($client, $address);
 		array_push($rooms[$code]['members'], $address);
 		$success = true;
@@ -175,17 +215,18 @@ function loginRoom(Socket $client, string $code, string $password) {
 	socket_write($client, $response, strlen($response));
 }
 
-function getCreatedRooms(Socket $client) {
+function getCreatedRooms(Socket $client)
+{
 	global $rooms, $commands;
 
 	socket_getpeername($client, $address);
 
 	$results = array();
 
-	foreach($rooms as $code => $room) {
+	foreach ($rooms as $code => $room) {
 		$owner = $room['owner'];
 
-		if($owner == $address){
+		if ($owner == $address) {
 			array_push($results, array(
 				"code" => $code,
 				"name" => $room['name'],
@@ -201,7 +242,8 @@ function getCreatedRooms(Socket $client) {
 	socket_write($client, $response, strlen($response));
 }
 
-function deleteRoom(Socket $client, string $code) {
+function deleteRoom(Socket $client, string $code)
+{
 	global $rooms, $commands;
 
 	unset($rooms[$code]);
@@ -216,17 +258,19 @@ function deleteRoom(Socket $client, string $code) {
 }
 
 // Delete socket in specified array
-function socket_remove(Socket $socket, array &$socket_array) {
+function socket_remove(Socket $socket, array &$socket_array)
+{
 	$index = array_search($socket, $socket_array);
 	unset($socket_array[$index]);
 }
 
 // Send message to all clients
-function socket_sendForAll(string $message, ?string $exceptIP = NULL) {
+function socket_sendForAll(string $message, ?string $exceptIP = NULL)
+{
 	global $sockets;
 
 	foreach ($sockets as $address => $socket) {
-		if($address <=> $exceptIP)
+		if ($address <=> $exceptIP)
 			@socket_write($socket, $message, strlen($message));
 	}
 
@@ -234,12 +278,13 @@ function socket_sendForAll(string $message, ?string $exceptIP = NULL) {
 }
 
 // Get all ip addresses for connected clients
-function getClientsInfo(?string $except = NULL): array {
+function getClientsInfo(?string $except = NULL): array
+{
 	global $sockets, $users;
 	$keys = array_keys($sockets);
 	$clients_info = array();
 
-	if($except && in_array($except, $keys)){
+	if ($except && in_array($except, $keys)) {
 		$index = array_search($except, $keys);
 		unset($keys[$index]);
 	}
@@ -257,11 +302,13 @@ function getClientsInfo(?string $except = NULL): array {
 }
 
 // Encode the response to send
-function socket_encodeResponse(string|array $response): ?string {
+function socket_encodeResponse(string|array $response): ?string
+{
 	return socket_mask(json_encode($response), true);
 }
 
 // Decode the recieve response
-function socket_decodeResponse(string $response): ?array {
+function socket_decodeResponse(string $response): ?array
+{
 	return json_decode(socket_unmask($response), true);
 }

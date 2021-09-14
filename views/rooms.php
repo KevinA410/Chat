@@ -77,9 +77,9 @@
                                 </svg>
                             </button>
                             <div class="ms-4 ms-lg-2">
-                                <h4 class="h5"><strong id="destination_name"></strong></h4>
+                                <h4 class="h5"><strong id="room_title"></strong></h4>
                                 <h5 class="h6 text-muted">
-                                    <span id="destination_address"></span>
+                                    <span id="room_code"></span>
                                 </h5>
                             </div>
                         </div>
@@ -93,7 +93,7 @@
                     <div class="input-group flex-nowrap">
                         <input id="input_message" type="text" class="form-control" placeholder="Write here..."
                             aria-describedby="addon-wrapping">
-                        <button id="btn_send" class="btn btn-primary">
+                        <button id="btn_sendGroup" class="btn btn-primary">
                             <!-- Send icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white"
                                 class="bi bi-cursor-fill" viewBox="0 0 16 16">

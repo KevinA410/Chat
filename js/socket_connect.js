@@ -20,10 +20,10 @@ $(document).ready(function () {
         'get_created_rooms', // [11]
         'get_all_rooms', // [12]
         'request_rooms', // [13]
-        'login_room',   // [14]
+        'login_room', // [14]
     ];
 
-    if(mode == 'private'){
+    if (mode == 'private') {
         setChat(false);
     }
 
@@ -127,6 +127,20 @@ $(document).ready(function () {
                     setBadge(id, getBadge(id) + 1);
                 }
                 break;
+            case commands[3]:
+                if (!r.from) {
+                    saveMessage(r.message, r.hour, r.room, 'You');
+                    loadMessages(r.room);
+                } else {
+                    saveMessage(r.message, r.hour, r.room, r.from);
+
+                    if (currentChat == r.room) {
+                        loadMessages(r.room);
+                    } else {
+                        setBadge(r.room, getBadge(r.room) + 1);
+                    }
+                }
+                break;
             case commands[4]:
                 saveMessage(r.message, r.hour, r.to, 'You');
                 loadMessages(r.to);
@@ -191,7 +205,7 @@ $(document).ready(function () {
                 $("#" + r.code).on('click', function () {
                     var password = prompt('Password');
 
-                    if(password == null){
+                    if (password == null) {
                         return;
                     }
 
@@ -200,6 +214,8 @@ $(document).ready(function () {
                         "password": password,
                         "code": r.code
                     }));
+
+                    currentChat = r.code;
                 });
 
                 break;
@@ -238,24 +254,26 @@ $(document).ready(function () {
             case commands[12]:
                 r.rooms.forEach(room => {
                     $('#rooms').append(html_getAllRooms(room.code, room.name, room.owner));
-                
+
                     $("#" + room.code).on('click', function () {
                         var password = prompt('Password');
-    
-                        if(password == null){
+
+                        if (password == null) {
                             return;
                         }
-    
+
                         socket.send(JSON.stringify({
                             "command": commands[14],
                             "password": password,
                             "code": room.code
                         }));
+
+                        currentChat = room.code;
                     });
                 });
                 break;
             case commands[14]:
-                if(!r.success){
+                if (!r.success) {
                     alert('Incorrect Password');
                     return;
                 }
@@ -264,9 +282,10 @@ $(document).ready(function () {
                 $("#room-content").attr('class', roomClass + ' d-none');
                 $("#right").removeAttr('hidden', true);
 
-                $("#destination_name").html(r.name);
-                $("#destination_address").html('#' + r.code);
-            break;
+                $("#room_title").html(r.name);
+                $("#room_code").html('#' + r.code);
+                loadMessages(r.code);
+                break;
             default:
                 console.log("There's no function for this command");
         }
@@ -364,6 +383,26 @@ $(document).ready(function () {
         currentChat = null;
     });
 
+    $("#btn_sendGroup").on('click', function () {
+        var room = $("#room_code").html();
+        room = room.substring(1, room.length);
+
+        var message = $("#input_message").val();
+
+        if (message == '') {
+            alert("You can't send empty messages");
+            return;
+        }
+
+        $("#input_message ").val('');
+
+        socket.send(JSON.stringify({
+            "command": commands[3],
+            "room": room,
+            "message": message
+        }));
+    });
+
     // Auxiliar functions
     function html_newConnection(id, username, avatar, address) {
         return `
@@ -391,7 +430,7 @@ $(document).ready(function () {
         var html = `
             <div id="${code}" class="${code} card py-3 shadow-sm px-3 mb-3">
                 <div class="ms-4 ms-lg-3">
-                    <h5 class="h6 mb-1">${name}</h5>
+                    <h5 class="h6 mb-1">${name} <span id="badge_${code}" class=""></span></h5>
                     <h5 class="h6 mb-1">${owner}</h5>
                     <h5 class="h6 text-muted">
                         #${code}
@@ -442,7 +481,7 @@ $(document).ready(function () {
             new Array();
 
         conv.forEach(item => {
-            var user = item.from == 'You' ? item.from : $("#destination_name").html();
+            var user = item.from;
             var style = user == 'You' ? 'own-message' : 'others-message';
 
             raw += `

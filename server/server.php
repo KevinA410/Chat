@@ -15,6 +15,7 @@ $commands = [
     'verified_message',     // [4]
     'get_new_connection',   // [5]
     'get_all_connections',  // [6]
+    'request_users',         // [7]
 
 ];
 
@@ -57,6 +58,9 @@ while (true) { // Keep run
                     $commands[0] => newConnection($client, $request['id']),
                     // Send private message
                     $commands[2] => privateMessage($client, $request['to'], $request['message']),
+                    // Send requested users
+                    $commands[7] => requestUsers($client, $request['attr']),
+
                 };
             }
             

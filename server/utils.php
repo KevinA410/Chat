@@ -66,6 +66,37 @@ function privateMessage(Socket $client, string $toIP, string $message) {
 	}
 }
 
+function requestUsers(Socket $client, string $attr) {
+	socket_getpeername($client, $client_address);
+
+	global $users, $sockets, $commands;
+	$results = array();
+	$keys = array_keys($sockets);
+
+	$index = array_search($client_address, $keys);
+	unset($keys[$index]);
+	
+	if(!empty($attr)){
+		foreach($keys as $address) {
+			$user = $users[$address];
+			if(str_starts_with($address, $attr) || str_starts_with($user->getUsername(), $attr)) {
+				array_push($results, array(
+					'username' => $user->getUsername(),
+					'avatar' => $user->getAvatar(),
+					'address' => $address
+				));
+			}
+		}
+	}
+
+	$response = socket_encodeResponse(array(
+		'command' => $commands[7],
+		'results' => $results
+	));
+
+	socket_write($client, $response, strlen($response));
+}
+
 // Delete socket in specified array
 function socket_remove(Socket $socket, array &$socket_array) {
 	$index = array_search($socket, $socket_array);

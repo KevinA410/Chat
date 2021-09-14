@@ -12,7 +12,8 @@ $(document).ready(function () {
         'verified_message',     // [4]
         'get_new_connection',   // [5]
         'get_all_connections',  // [6]
-    
+        'request_users',        // [7]
+
     ];
 
     setChat(false);
@@ -108,6 +109,33 @@ $(document).ready(function () {
                 saveMessage(r.message, r.hour, r.to, 'You');
                 loadMessages(r.to);
                 break;
+            case commands[7]:
+                $("#results").html('');
+
+                r.results.forEach(client => {
+                    var id = client.address.replaceAll('.', '_');
+
+                    $("#results").append(html_newConnection(id, client.username, client.avatar, client.address));
+
+                    $("#" + id).on('click', function () {   
+                        if (!currentChat) {
+                            setChat(true);
+                        }
+
+                        $("#destination_avatar").attr('src', '../resources/profiles/'+client.avatar);
+                        $("#destination_name").html(client.username);
+                        $("#destination_address").html(client.address);
+
+
+                        currentChat = client.address;
+                        loadMessages(client.address);
+                        
+                        if(!isLg){
+                            $("#btn_slide").click();
+                        }
+                    });
+                });
+                break;
             default:
                 console.log("There's no function for this command");
         }
@@ -157,6 +185,25 @@ $(document).ready(function () {
         }
     });
     
+    $("#searchBar").keyup(function () {
+        socket.send(JSON.stringify({
+            "command": commands[7],
+            "attr": $("#searchBar").val()
+        }));
+    });
+
+    $("#searchBar").on('focusin', function () {
+        $("#results").removeAttr('hidden', true);
+        $("#results").html('');
+    });
+
+    $("#searchBar").on('focusout', function () {
+        $("#searchBar").val('');
+        setTimeout(() => {
+            $("#results").attr('hidden', true);
+            $("#results").html('');
+          }, 300);
+    });
 
     // Auxiliar functions
     function html_newConnection(id, username, avatar, address) {

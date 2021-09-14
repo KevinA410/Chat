@@ -25,13 +25,17 @@
                 <div class="form-group mb-3">
                     <label for="username" class="form-label text-muted">Username</label>
                     <input type="text" class="form-control" name="username" aria-describedby="usernamelHelp">
-                    <div id="usernameHelp" class="form-text" hidden>Invalid username</div>
+                    <?php if(isset($_REQUEST['invalidUsername'])): ?>
+                    <div id="usernameHelp" class="form-text">This username already exists</div>
+                    <?php endif ?>
                 </div>
                 <!-- Email -->
                 <div class="form-group mb-3">
                     <label for="email" class="form-label text-muted">Email</label>
                     <input type="email" class="form-control" name="email" aria-describedby="emaillHelp">
-                    <div id="emailHelp" class="form-text" hidden>Invalid username</div>
+                    <?php if(isset($_REQUEST['invalidEmail'])): ?>
+                    <div id="emailHelp" class="form-text">Email already registered  </div>
+                    <?php endif ?>
                 </div>
                 <!-- Password -->
                 <div class="form-group mb-3">

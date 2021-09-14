@@ -18,7 +18,9 @@
                 <div class="form-group mb-3">
                     <label for="username" class="form-label text-muted">Username</label>
                     <input type="text" class="form-control" name="username" aria-describedby="usernamelHelp">
-                    <div id="usernameHelp" class="form-text" hidden>Invalid username</div>
+                    <?php if(isset($_REQUEST['invalidUser'])): ?>
+                    <div id="usernameHelp" class="form-text">Username doesn't exist</div>
+                    <?php endif ?>
                 </div>
                 <!-- Password -->
                 <div class="form-group mb-3">
@@ -33,7 +35,9 @@
                                     d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
                             </svg></span>
                     </div>
-                    <div id="passwordHelp" class="form-text" hidden>Incorrect password</div>
+                    <?php if(isset($_REQUEST['invalidPassword'])): ?>
+                    <div id="passwordHelp" class="form-text">Username and password don't match</div>
+                    <?php endif ?>
                 </div>
                 <!-- Buttons -->
                 <div class="d-flex justify-content-end mt-4">

@@ -59,6 +59,11 @@ function layout_begin(){
     include_once '../database/model/User.php';
     session_start();
 
+    if(!isset($_SESSION['user'])) {
+        header('Location: login.php');
+        return;
+    }
+
     header_begin();
 
     echo '
